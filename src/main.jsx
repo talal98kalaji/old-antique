@@ -1,10 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { HashRouter as Router } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 import AppContent from './App';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-    <Router basename="/old-antique">
+  <React.StrictMode>
+    <BrowserRouter basename="/old-antique">
       <AppContent />
-    </Router>
+    </BrowserRouter>
+  </React.StrictMode>
 );
