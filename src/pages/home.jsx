@@ -1,23 +1,14 @@
-import { Container } from "@mui/material";
+// pages/HomePage.jsx
 import React from "react";
-import ReCard from "../components/card.jsx";
-import Grid from '@mui/material/Grid';
-
-
-
+import { Container } from "@mui/material";
+import ReuseableCard from '../components/card.jsx';
 
 const HomePage = () => {
-return (
-<div>
-	<Container sx={{mt:2}}> 
-		<Grid container gap={2}>
-			<Grid item size={{ xs: 12, sm: 9 ,md:6  ,lg:3}}>
-				<ReCard />
-			</Grid>
-		</Grid>
-	</Container>
-</div>
-);
-}
+  return (
+    <Container sx={{ mt: 2 }}>
+      <ReuseableCard />
+    </Container>
+  );
+};
 
 export default HomePage;
