@@ -4,6 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite + React</title>
+    <script>
+          /*قابل للازالة عند الرفع الرسمي*/
+
+  const redirect = sessionStorage.getItem('redirect');
+  if (redirect) {
+    sessionStorage.removeItem('redirect');
+    history.replaceState(null, '', redirect);
+  }
+      /*قابل للازالة عند الرفع الرسمي*/
+
+</script>
   </head>
   <body>
     <div id="root"></div>
