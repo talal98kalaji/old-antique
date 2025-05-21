@@ -1,4 +1,3 @@
-// pages/HomePage.jsx
 import React from "react";
 import { Container } from "@mui/material";
 import ReuseableCard from '../components/card.jsx';

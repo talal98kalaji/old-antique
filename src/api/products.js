@@ -1,6 +1,6 @@
 // services/ProductService.js
 
-const BASE_URL = "https://talalkalaji.pythonanywhere.com/api/products/";
+const BASE_URL = "http://127.0.0.1:8000/api/products/";
 const defaultHeaders = {
   "Content-Type": "application/json",
 };
@@ -50,11 +50,19 @@ export const addProduct = async (productData) => {
 
 // تعديل منتج موجود
 export const editProduct = async (id, productData) => {
-  const response = await fetch(`${BASE_URL}edit/${id}/`, {
+  // إعداد خيارات الطلب
+  const options = {
     method: "PUT",
-    headers: defaultHeaders,
-    body: JSON.stringify(productData),
-  });
+    body: productData,   // FormData أو JSON
+  };
+
+  // إذا لم تكن FormData، أضف رأس JSON
+  if (!(productData instanceof FormData)) {
+    options.headers = { "Content-Type": "application/json" };
+    options.body = JSON.stringify(productData);
+  }
+
+  const response = await fetch(`${BASE_URL}edit/${id}/`, options);
   return handleResponse(response);
 };
 

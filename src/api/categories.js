@@ -1,4 +1,4 @@
-const BASE_URL = "https://talalkalaji.pythonanywhere.com/api/categories/";
+const BASE_URL = "http://127.0.0.1:8000/api/categories/";
 const defaultHeaders = {
   "Content-Type": "application/json",
 };
@@ -34,7 +34,7 @@ export const getCategoryById = async (id) => {
 };
 
 export const getAllCategories = async () => {
-  const response = await fetch(`${BASE_URL}getall/`, {
+  const response = await fetch(`${BASE_URL}get/all/`, {
     method: "GET",
     headers: defaultHeaders,
   });

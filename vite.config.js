@@ -3,7 +3,10 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   base: "/old-antique/",
-  plugins: [react()]
+  plugins: [react()],
+    build: {
+    sourcemap: true       // يمكّنك من رؤية ملفات .map جنب ملفات JS
+  }
 });
 /*
 الروتين للتحديثات

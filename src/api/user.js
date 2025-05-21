@@ -1,4 +1,4 @@
-const BASE_URL = "https://talalkalaji.pythonanywhere.com/api/";
+const BASE_URL = "http://127.0.0.1:8000/api/";
 
 const defaultHeaders = {
   "Content-Type": "application/json",
@@ -6,7 +6,7 @@ const defaultHeaders = {
 
 export const getUsers = () => {
   const token = localStorage.getItem("token");
-  return fetch("https://talalkalaji.pythonanywhere.com/api/auth/users/", {
+  return fetch("http://127.0.0.1:8000/api/auth/users/", {
     method: 'GET',
     headers: {
       ...defaultHeaders,
@@ -34,7 +34,7 @@ const handleResponse = async (response) => {
 };
 
 export const login = async (username, password) => {
-  const response = await fetch("https://talalkalaji.pythonanywhere.com/api/auth/login/", {
+  const response = await fetch("http://127.0.0.1:8000/api/auth/login/", {
     method: "POST",
     headers: defaultHeaders,
     body: JSON.stringify({ username, password }),

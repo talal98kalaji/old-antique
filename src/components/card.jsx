@@ -1,89 +1,38 @@
-// components/ReuseableCard.jsx
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import {
-  Card,
-  CardMedia,
-  CardContent,
-  CardActions,
-  Button,
-  Typography,
-  Grid,
-  Container
-} from "@mui/material";
-import { getAllProducts, deleteProduct } from "../api/products";
+import React from "react";
+import { Card, CardMedia, CardContent, CardActions, Button, Typography, Grid, Container } from "@mui/material";
 
-const ReuseableCard = () => {
-  const [products, setProducts] = useState([]);
-  const navigate = useNavigate();
-  const BASE_URL = "https://talalkalaji.pythonanywhere.com"; 
 
-  // جلب البيانات
-  const getData = () => {
-    getAllProducts()
-      .then(data => setProducts(data.results))
-      .catch(err => console.error(err));
-  };
-
-  useEffect(() => {
-    getData();
-  }, []);
-
-  const handleEdit = id => navigate(`add-edit/${id}`);
-  const handleDelete = async id => {
-    try {
-      const status = await deleteProduct(id);
-      if (status === 204 || status === "ok") getData();
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
+const ReuseableCard = ({ items, onEdit, onDelete, baseUrl }) => {
   return (
     <Container sx={{ py: 4 }}>
       <Grid container spacing={2}>
-        {products.map(product => (
-          <Grid 
-            item 
-            key={product.id} 
-            xs={12}    // 1 بطاقة في الهواتف
-            sm={6}     // 2 بطاقات في الشاشات المتوسطة 
-            md={4}     // 3 بطاقات في الشاشات الأكبر 
-            lg={2}     // 6 بطاقات في الشاشات الكبيرة جداً (12/2=6)
-          >
+        {items.map(item => (
+          <Grid key={item.id} item xs={12} sm={6} md={4} lg={3}>
             <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
               <CardMedia
                 component="img"
-                height="140"                   // ارتفاع ثابت للصور
-                image={product.image 
-                  ? `${BASE_URL}${product.image}` 
-                  : "/placeholder.png"}
-                alt={product.title}
-                sx={{
-                  objectFit: "cover"           // يملأ البطاقة مع قصّ الجزء الزائد
-                }}
+                height="140"
+                image={item.image ? `${baseUrl}${item.image}` : "/placeholder.png"}
+                alt={item.title}
+                sx={{ objectFit: "cover" }}
               />
               <CardContent sx={{ flexGrow: 1 }}>
                 <Typography gutterBottom variant="h6">
-                  {product.title}
+                  {item.title}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {product.description || "لا توجد تفاصيل"}
+                  {item.description || "No description available"}
                 </Typography>
                 <Typography variant="subtitle1" sx={{ mt: 1 }}>
-                  السعر: {product.price} د.ل
+                  Price: {item.price}
                 </Typography>
               </CardContent>
               <CardActions>
-                <Button size="small" onClick={() => handleEdit(product.id)}>
-                  تعديل
+                <Button size="small" onClick={() => onEdit(item.id)}>
+                  Edit
                 </Button>
-                <Button 
-                  size="small" 
-                  color="error" 
-                  onClick={() => handleDelete(product.id)}
-                >
-                  حذف
+                <Button size="small" color="error" onClick={() => onDelete(item.id)}>
+                  Delete
                 </Button>
               </CardActions>
             </Card>
@@ -94,4 +43,4 @@ const ReuseableCard = () => {
   );
 };
 
-export default ReuseableCard;
+export default ReuseableCard

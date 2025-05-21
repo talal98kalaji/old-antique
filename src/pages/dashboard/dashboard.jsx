@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import DashboardLayout from '../../components/DashboardLayout';
+import DashboardLayout from '../../components/layouts/DashboardLayout';
 import ReTable from '../../components/tables/retable';
 import { Typography, CircularProgress, Alert, Stack, Button } from '@mui/material';
 import { getUsers } from '../../api/user';
@@ -37,11 +37,10 @@ function RowActions({ row }) {
 }
 
   return (
-    <DashboardLayout>
+    <>
       <Button><Typography variant="h4" gutterBottom>Users</Typography></Button>
       {loading && <CircularProgress />}
       {error   && <Alert severity="error">{error}</Alert>}
       {!loading && !error && <ReTable columns={columns} rows={rows} actions={RowActions}/>}
-    </DashboardLayout>
-  );
+  </>);
 }
