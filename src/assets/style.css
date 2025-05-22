@@ -1,0 +1,30 @@
+
+.drawer {
+  flex-shrink: 0;
+  white-space: nowrap;
+  box-sizing: border-box;
+  transition: width 225ms cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+.drawerOpen {
+  width: 240px;
+}
+
+.drawerClosed {
+  width: 0;
+  overflow-x: hidden;
+  transition: width 195ms cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+.drawerPaper {
+  box-sizing: border-box;
+}
+
+.drawerPaperOpen {
+  width: 240px;
+}
+
+.drawerPaperClosed {
+  width: 0;
+  overflow-x: hidden;
+}
