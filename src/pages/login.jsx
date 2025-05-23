@@ -11,7 +11,7 @@ import {
   CssBaseline
 } from "@mui/material";
 import { login } from "../api/user.js";
-import Vase from "../assets/images/vintagevase.jpg";
+import Vase from "../assets/images/uivase.png";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -52,7 +52,7 @@ const LoginPage = () => {
       <Grid container  spacing={5}>
         {/* Left Image Section */}
    <Grid
-        item
+          
 size={{md:6}}
         sx={{
 
@@ -74,7 +74,7 @@ size={{md:6}}
 
         {/* Right Form Section */}
         <Grid
-          item
+          
           size={{md:6}}
           sx={{
             m: 0,

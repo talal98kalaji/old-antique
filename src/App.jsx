@@ -34,21 +34,21 @@ function AppContent() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <DashboardLayout>
+      <DashboardLayout />
       <Routes>
         <Route path="/home" element={<LoginPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<SignupPage />} />
+      </Routes>
+      <Routes>
         <Route element={<AdminRoute />}>
         <Route path="/dashboard" element={<DashboardPage   />} />
         <Route path="/dashboard/products" element={<ProductsPage   />} />
         <Route path="/dashboard/products/add-edit/:id?" element={<AddEditForm />} />
         <Route path="/dashboard/users/" element={<UsersPage   />} />
-
         </Route>
       </Routes>
-      </DashboardLayout>
     </ThemeProvider>
   );
 }
