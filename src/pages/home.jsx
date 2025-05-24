@@ -18,6 +18,8 @@ import { getAllProducts } from "../api/products";
 import kosa from "../assets/images/uivase.png"
 import IconButton from '@mui/material/IconButton';
 import SearchIcon from '@mui/icons-material/Search';
+import HowItWorks from "../components/HowItWorks";
+import Newsletter from "../components/NewsLetter";
 
 
 const HomePage = () => {
@@ -63,6 +65,7 @@ const HomePage = () => {
           />
         </Box>
       </Box>
+      <HowItWorks />
       <Container sx={{ py: 6 }}>
         <Typography variant="h4" gutterBottom fontWeight="bold">
           Latest Arrivals
@@ -98,6 +101,7 @@ const HomePage = () => {
             </Grid>
           ))}
         </Grid>
+        <Newsletter />
       </Container>
 
 
