@@ -20,31 +20,45 @@ const LoginPage = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-    try {
-      const data = await login(email, password);
-      localStorage.setItem("token", data.access);
-      localStorage.setItem("refreshToken", data.refresh);
-      localStorage.setItem(
-        "role",
-        JSON.stringify({
-          id: data.user_id,
-          username: data.username,
-          is_superuser: data.is_superuser,
-          role: data.role,
-        })
-      );
-      navigate("/dashboard");
-    } catch (err) {
-      const msg = err.response?.data?.detail || err.message;
-      setError(msg);
-    } finally {
-      setLoading(false);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
+  setLoading(true);
+
+  try {
+    const data = await login(email, password);
+
+    // store tokens
+    localStorage.setItem("token", data.access);
+    localStorage.setItem("refreshToken", data.refresh);
+
+    // store user info
+    const userInfo = {
+      id: data.user_id,
+      username: data.username,
+      is_superuser: data.is_superuser,
+      role: data.role,
+    };
+    localStorage.setItem("user", JSON.stringify(userInfo));
+
+    // decide where to go
+    let path = "/";
+    if (data.role ==="superuser") {
+      path = "/dashboard";
+    } else if (data.role === "dataentry") {
+      path = "/dashboard/products";
+    } else if (data.role === "customer") {
+      path = "/home";
     }
-  };
+
+    navigate(path);
+  } catch (err) {
+    const msg = err.response?.data?.detail || err.message;
+    setError(msg);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <>
