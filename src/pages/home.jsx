@@ -18,8 +18,8 @@ import { getAllProducts } from "../api/products";
 import kosa from "../assets/images/uivase.png"
 import IconButton from '@mui/material/IconButton';
 import SearchIcon from '@mui/icons-material/Search';
-import HowItWorks from "../components/HowItWorks";
-import Newsletter from "../components/NewsLetter";
+import HowItWorks from "../components/homepage/HowItWorks";
+import Newsletter from "../components/homepage/NewsLetter";
 
 
 const HomePage = () => {

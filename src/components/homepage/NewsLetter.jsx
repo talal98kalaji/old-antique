@@ -3,8 +3,8 @@ import { Box, Typography, TextField, Button, Container } from "@mui/material";
 
 const Newsletter = () => {
   return (
-    <Box sx={{ bgcolor: "#b71c1c", color: "#fff", py: 6 }}>
-      <Container maxWidth="md" sx={{ textAlign: "center" }}>
+    <Box  sx={{ mt:2,bgcolor: "#FFD700", py: 6, borderRadius:"1%" }}>
+      <Container maxWidth="md" sx={{  textAlign: "center" }}>
         <Typography variant="h5" fontWeight="bold" gutterBottom>
           Stay Updated on New Treasures
         </Typography>
