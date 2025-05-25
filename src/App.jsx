@@ -4,7 +4,7 @@ import HomePage from "./pages/home.jsx";
 import AboutPage from "./pages/about.jsx";
 import LoginPage from "./pages/login.jsx";
 import SignupPage from "./pages/signup.jsx";
-import { darkTheme, lightTheme } from "./theme.js";
+import { darkTheme, lightTheme } from "./styles/theme.js";
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import DashboardPage from "./pages/dashboard/dashboard";
 import DashboardLayout from "./components/layouts/DashboardLayout.jsx";
