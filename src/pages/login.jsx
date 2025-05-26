@@ -48,7 +48,7 @@ const handleSubmit = async (e) => {
     } else if (data.role === "dataentry") {
       path = "/dashboard/products";
     } else if (data.role === "customer") {
-      path = "/home";
+      path = "/user/home";
     }
 
     navigate(path);

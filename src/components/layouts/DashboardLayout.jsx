@@ -8,7 +8,6 @@ import Sidebar from "./sidebar.jsx";
 import { useNavigate } from "react-router-dom";
 import "../../assets/style.css"
 
-
 const drawerWidth = 240;
 
 export default function DashboardLayout({ children }) {

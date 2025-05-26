@@ -4,7 +4,7 @@ import HomePage from "./pages/home.jsx";
 import AboutPage from "./pages/about.jsx";
 import LoginPage from "./pages/login.jsx";
 import SignupPage from "./pages/signup.jsx";
-import { darkTheme, lightTheme } from "./styles/theme.js";
+import { lightTheme,darkTheme } from "../theme.js";
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import DashboardPage from "./pages/dashboard/dashboard";
 import DashboardLayout from "./components/layouts/DashboardLayout.jsx";
@@ -12,31 +12,34 @@ import ProductsPage from "./pages/dashboard/products/products.jsx";
 import AdminRoute from "./components/homepage/AdminRoute.jsx";
 import UsersPage from "./pages/dashboard/users/users.jsx";
 import AddEditForm from "./pages/dashboard/products/add-edit.jsx"
+import UserLayout from "./components/layouts/User/UserLayout.jsx";
+
 
 function AppContent() {
-  const location = useLocation();           
-  const [mode, setMode] = useState('light');
+ const [mode, setMode] = useState('light');
 
-  useEffect(() => {                         
+  useEffect(() => {
     const savedMode = localStorage.getItem('themeMode');
     if (savedMode === 'dark' || savedMode === 'light') {
       setMode(savedMode);
     }
   }, []);
 
-  useEffect(() => {                         
-    localStorage.setItem('themeMode', mode);
-  }, [mode]);
+  const toggleTheme = () => {
+    const newMode = mode === 'light' ? 'dark' : 'light';
+    setMode(newMode);
+    localStorage.setItem('themeMode', newMode);
+  };
 
   const theme = mode === 'dark' ? darkTheme : lightTheme;
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      
+
       <Routes>
         {/* Non-dashboard routes without DashboardLayout */}
-        <Route path="/home" element={<HomePage />} />
+
         <Route path="/about" element={<AboutPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<SignupPage />} />
@@ -54,6 +57,14 @@ function AppContent() {
             </DashboardLayout>
           } />
         </Route>
+
+          <Route path="/user/*" element={
+          <UserLayout>
+            <Routes>
+            <Route path="home" element={<HomePage />} />
+            </Routes>
+          </UserLayout>
+        } />
       </Routes>
     </ThemeProvider>
   );
