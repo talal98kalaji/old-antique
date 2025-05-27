@@ -2,7 +2,6 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-// Create the authentication context
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
@@ -11,17 +10,14 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // Initialize auth state from localStorage on component mount
   useEffect(() => {
     const initializeAuth = async () => {
       const token = localStorage.getItem('access_token');
       
       if (token) {
         try {
-          // Configure axios to use the token for all requests
           axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           
-          // Fetch current user data
           const response = await axios.get('/api/user/');
           setUser({
             id: response.data.id,
@@ -31,7 +27,6 @@ export const AuthProvider = ({ children }) => {
           });
         } catch (err) {
           console.error('Error fetching user data:', err);
-          // If token is invalid or expired, clear localStorage
           if (err.response && (err.response.status === 401 || err.response.status === 403)) {
             logout();
           }
@@ -44,7 +39,6 @@ export const AuthProvider = ({ children }) => {
     initializeAuth();
   }, []);
 
-  // Function to handle user login
   const login = async (credentials) => {
     try {
       setLoading(true);
@@ -53,15 +47,12 @@ export const AuthProvider = ({ children }) => {
       const response = await axios.post('/api/login/', credentials);
       const { access, refresh, role } = response.data;
       
-      // Store tokens in localStorage
       localStorage.setItem('access_token', access);
       localStorage.setItem('refresh_token', refresh);
       localStorage.setItem('user_role', role);
       
-      // Set authorization header for future requests
       axios.defaults.headers.common['Authorization'] = `Bearer ${access}`;
       
-      // Fetch user data
       const userResponse = await axios.get('/api/user/');
       const userData = {
         id: userResponse.data.id,
@@ -72,7 +63,6 @@ export const AuthProvider = ({ children }) => {
       
       setUser(userData);
       
-      // Redirect based on role
       if (role === 'superuser') {
         navigate('/dashboard');
       } else if (role === 'data_entry') {
@@ -91,9 +81,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Function to handle user logout
   const logout = () => {
-    // Clear user data and tokens
     setUser(null);
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
@@ -102,7 +90,6 @@ export const AuthProvider = ({ children }) => {
     navigate('/login');
   };
 
-  // Function to refresh the token
   const refreshToken = async () => {
     try {
       const refresh = localStorage.getItem('refresh_token');
@@ -124,20 +111,17 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Setup axios interceptor for token refresh
   useEffect(() => {
     const interceptor = axios.interceptors.response.use(
       (response) => response,
       async (error) => {
         const originalRequest = error.config;
         
-        // If error is 401 and we haven't tried to refresh the token yet
         if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
           
           const refreshed = await refreshToken();
           if (refreshed) {
-            // Retry the original request with new token
             return axios(originalRequest);
           }
         }
@@ -146,22 +130,17 @@ export const AuthProvider = ({ children }) => {
       }
     );
     
-    // Clean up interceptor on unmount
     return () => axios.interceptors.response.eject(interceptor);
   }, []);
 
-  // Check if user has a specific role
   const hasRole = (requiredRole) => {
     if (!user) return false;
     
-    // Superuser has access to everything
     if (user.is_superuser) return true;
     
-    // Check for specific role
     return user.role === requiredRole;
   };
 
-  // Context value
   const value = {
     user,
     loading,
@@ -176,7 +155,6 @@ export const AuthProvider = ({ children }) => {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-// Custom hook to use the auth context
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {

@@ -1,47 +1,47 @@
 import React, { useEffect } from 'react';
 import { Box, Button, CssBaseline, IconButton, Toolbar, Typography, Badge, Avatar, Menu, MenuItem } from "@mui/material";
-import MuiDrawer from "@mui/material/Drawer";
-import MuiAppBar from "@mui/material/AppBar";
-import MenuIcon from "@mui/icons-material/Menu";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import UserSidebar from "./Sidebar";
-import { useNavigate } from "react-router-dom";
-import useAuth from '../../../hooks/useAuth';// Import the auth context
-import "../../../assets/style.css";
+import MuiDrawer from "@mui/material/Drawer"
+import MuiAppBar from "@mui/material/AppBar"
+import MenuIcon from "@mui/icons-material/Menu"
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft"
+import NotificationsIcon from "@mui/icons-material/Notifications"
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart"
+import UserSidebar from "./Sidebar"
+import { useNavigate } from "react-router-dom"
+import useAuth from '../../../hooks/useAuth'
+import "../../../assets/style.css"
 
 const drawerWidth = 240;
 
 export default function UserLayout({ children }) {
   const [open, setOpen] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const navigate = useNavigate();
-  const { user, logout } = useAuth(); // Use the auth context
+  const navigate = useNavigate()
+  const { user, logout } = useAuth()
   
   const handleProfileMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
+    setAnchorEl(event.currentTarget)
   };
 
   const handleMenuClose = () => {
-    setAnchorEl(null);
+    setAnchorEl(null)
   };
 
   const handleLogout = () => {
     handleMenuClose();
-    logout(); // Use the logout function from auth context
+    logout();
   };
 
   const isMenuOpen = Boolean(anchorEl);
 
-  // Redirect to login if not authenticated
+
   useEffect(() => {
     if (!user) {
       navigate('/login');
     }
   }, [user, navigate]);
 
-  // If no user, don't render the layout
+
   if (!user) {
     return null;
   }
@@ -119,7 +119,7 @@ export default function UserLayout({ children }) {
             {open ? <ChevronLeftIcon /> : <MenuIcon />}
           </IconButton>
         </Toolbar>
-        <UserSidebar open={open} user={user} /> {/* Pass user to sidebar */}
+        <UserSidebar open={open} user={user} /> {/* details of user side bar tello*/}
       </MuiDrawer>
 
       <Box component="main" sx={{ flexGrow: 1, p: 3, mt: 8 }}>
