@@ -1,339 +1,186 @@
-import React from "react";
-import { 
-  List, 
-  ListItem, 
-  ListItemIcon, 
-  ListItemText, 
-  Divider, 
-  Typography, 
-  Box,
-  Avatar
-} from "@mui/material";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import HistoryIcon from "@mui/icons-material/History";
-import PersonIcon from "@mui/icons-material/Person";
-import SettingsIcon from "@mui/icons-material/Settings";
-import HelpIcon from "@mui/icons-material/Help";
-import LocalOfferIcon from "@mui/icons-material/LocalOffer";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
-import PaymentIcon from "@mui/icons-material/Payment";
-import ReviewsIcon from "@mui/icons-material/Reviews";
-import { useNavigate } from "react-router-dom";
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
-export default function UserSidebar({ open }) {
+// Create the authentication context
+const AuthContext = createContext(null);
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // User profile information
-  const userProfile = {
-    firstName: "John",
-    lastName: "Doe",
-    profession: "Software Developer",
-    email: "john.doe@example.com",
-    avatar: "/static/images/avatar/1.jpg"
+  // Initialize auth state from localStorage on component mount
+  useEffect(() => {
+    const initializeAuth = async () => {
+      const token = localStorage.getItem('access_token');
+      
+      if (token) {
+        try {
+          // Configure axios to use the token for all requests
+          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+          
+          // Fetch current user data
+          const response = await axios.get('/api/user/');
+          setUser({
+            id: response.data.id,
+            username: response.data.username,
+            is_superuser: response.data.is_superuser,
+            role: response.data.is_superuser ? 'superuser' : response.data.role || 'customer'
+          });
+        } catch (err) {
+          console.error('Error fetching user data:', err);
+          // If token is invalid or expired, clear localStorage
+          if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+            logout();
+          }
+          setError('Authentication failed. Please log in again.');
+        }
+      }
+      setLoading(false);
+    };
+
+    initializeAuth();
+  }, []);
+
+  // Function to handle user login
+  const login = async (credentials) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await axios.post('/api/login/', credentials);
+      const { access, refresh, role } = response.data;
+      
+      // Store tokens in localStorage
+      localStorage.setItem('access_token', access);
+      localStorage.setItem('refresh_token', refresh);
+      localStorage.setItem('user_role', role);
+      
+      // Set authorization header for future requests
+      axios.defaults.headers.common['Authorization'] = `Bearer ${access}`;
+      
+      // Fetch user data
+      const userResponse = await axios.get('/api/user/');
+      const userData = {
+        id: userResponse.data.id,
+        username: userResponse.data.username,
+        is_superuser: userResponse.data.is_superuser,
+        role: role
+      };
+      
+      setUser(userData);
+      
+      // Redirect based on role
+      if (role === 'superuser') {
+        navigate('/dashboard');
+      } else if (role === 'data_entry') {
+        navigate('/data-entry');
+      } else {
+        navigate('/user/home');
+      }
+      
+      return { success: true };
+    } catch (err) {
+      console.error('Login error:', err);
+      setError(err.response?.data?.detail || 'Login failed. Please check your credentials.');
+      return { success: false, error: err.response?.data?.detail || 'Login failed' };
+    } finally {
+      setLoading(false);
+    }
   };
 
-  return (
-    <Box sx={{ overflow: "hidden" }}>
-      {/* User Profile Section */}
-      <Box 
-        sx={{ 
-          display: "flex", 
-          flexDirection: "column", 
-          alignItems: open ? "flex-start" : "center",
-          padding: 2,
-          mb: 2
-        }}
-      >
-        <Avatar 
-          src={userProfile.avatar} 
-          alt={`${userProfile.firstName} ${userProfile.lastName}`}
-          sx={{ 
-            width: 64, 
-            height: 64, 
-            mb: 1,
-            border: "2px solid #1976d2"
-          }} 
-        />
-        {open && (
-          <Box sx={{ mt: 1 }}>
-            <Typography variant="h6" noWrap>
-              {`${userProfile.firstName} ${userProfile.lastName}`}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" noWrap>
-              {userProfile.profession}
-            </Typography>
-            <Typography variant="caption" color="text.secondary" noWrap>
-              {userProfile.email}
-            </Typography>
-          </Box>
-        )}
-      </Box>
+  // Function to handle user logout
+  const logout = () => {
+    // Clear user data and tokens
+    setUser(null);
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user_role');
+    delete axios.defaults.headers.common['Authorization'];
+    navigate('/login');
+  };
+
+  // Function to refresh the token
+  const refreshToken = async () => {
+    try {
+      const refresh = localStorage.getItem('refresh_token');
+      if (!refresh) {
+        throw new Error('No refresh token available');
+      }
+
+      const response = await axios.post('/api/token/refresh/', { refresh });
+      const { access } = response.data;
       
-      <Divider />
+      localStorage.setItem('access_token', access);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${access}`;
       
-      {/* Shopping Section */}
-      <List>
-        <ListItem 
-          button 
-          onClick={() => navigate('/user/cart')}
-          sx={{ 
-            minHeight: 48,
-            justifyContent: open ? 'initial' : 'center',
-            px: 2.5,
-          }}
-        >
-          <ListItemIcon
-            sx={{
-              minWidth: 0,
-              mr: open ? 2 : 'auto',
-              justifyContent: 'center',
-            }}
-          >
-            <ShoppingCartIcon />
-          </ListItemIcon>
-          <ListItemText 
-            primary="My Cart" 
-            secondary="View and manage your shopping cart"
-            sx={{ opacity: open ? 1 : 0 }} 
-          />
-        </ListItem>
+      return true;
+    } catch (err) {
+      console.error('Token refresh failed:', err);
+      logout();
+      return false;
+    }
+  };
+
+  // Setup axios interceptor for token refresh
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config;
         
-        <ListItem 
-          button 
-          onClick={() => navigate('/user/wishlist')}
-          sx={{ 
-            minHeight: 48,
-            justifyContent: open ? 'initial' : 'center',
-            px: 2.5,
-          }}
-        >
-          <ListItemIcon
-            sx={{
-              minWidth: 0,
-              mr: open ? 2 : 'auto',
-              justifyContent: 'center',
-            }}
-          >
-            <FavoriteIcon />
-          </ListItemIcon>
-          <ListItemText 
-            primary="Wishlist" 
-            secondary="Items you've saved for later"
-            sx={{ opacity: open ? 1 : 0 }} 
-          />
-        </ListItem>
+        // If error is 401 and we haven't tried to refresh the token yet
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true;
+          
+          const refreshed = await refreshToken();
+          if (refreshed) {
+            // Retry the original request with new token
+            return axios(originalRequest);
+          }
+        }
         
-        <ListItem 
-          button 
-          onClick={() => navigate('/user/purchase-history')}
-          sx={{ 
-            minHeight: 48,
-            justifyContent: open ? 'initial' : 'center',
-            px: 2.5,
-          }}
-        >
-          <ListItemIcon
-            sx={{
-              minWidth: 0,
-              mr: open ? 2 : 'auto',
-              justifyContent: 'center',
-            }}
-          >
-            <HistoryIcon />
-          </ListItemIcon>
-          <ListItemText 
-            primary="Purchase History" 
-            secondary="View your past orders and transactions"
-            sx={{ opacity: open ? 1 : 0 }} 
-          />
-        </ListItem>
-      </List>
-      
-      <Divider />
-      
-      {/* Account Section */}
-      <List>
-        <ListItem 
-          button 
-          onClick={() => navigate('/user/profile')}
-          sx={{ 
-            minHeight: 48,
-            justifyContent: open ? 'initial' : 'center',
-            px: 2.5,
-          }}
-        >
-          <ListItemIcon
-            sx={{
-              minWidth: 0,
-              mr: open ? 2 : 'auto',
-              justifyContent: 'center',
-            }}
-          >
-            <PersonIcon />
-          </ListItemIcon>
-          <ListItemText 
-            primary="My Profile" 
-            secondary="Manage your personal information"
-            sx={{ opacity: open ? 1 : 0 }} 
-          />
-        </ListItem>
-        
-        <ListItem 
-          button 
-          onClick={() => navigate('/user/addresses')}
-          sx={{ 
-            minHeight: 48,
-            justifyContent: open ? 'initial' : 'center',
-            px: 2.5,
-          }}
-        >
-          <ListItemIcon
-            sx={{
-              minWidth: 0,
-              mr: open ? 2 : 'auto',
-              justifyContent: 'center',
-            }}
-          >
-            <LocationOnIcon />
-          </ListItemIcon>
-          <ListItemText 
-            primary="My Addresses" 
-            secondary="Manage shipping and billing addresses"
-            sx={{ opacity: open ? 1 : 0 }} 
-          />
-        </ListItem>
-        
-        <ListItem 
-          button 
-          onClick={() => navigate('/user/payment-methods')}
-          sx={{ 
-            minHeight: 48,
-            justifyContent: open ? 'initial' : 'center',
-            px: 2.5,
-          }}
-        >
-          <ListItemIcon
-            sx={{
-              minWidth: 0,
-              mr: open ? 2 : 'auto',
-              justifyContent: 'center',
-            }}
-          >
-            <PaymentIcon />
-          </ListItemIcon>
-          <ListItemText 
-            primary="Payment Methods" 
-            secondary="Manage your payment options"
-            sx={{ opacity: open ? 1 : 0 }} 
-          />
-        </ListItem>
-      </List>
-      
-      <Divider />
-      
-      {/* Additional Features */}
-      <List>
-        <ListItem 
-          button 
-          onClick={() => navigate('/user/reviews')}
-          sx={{ 
-            minHeight: 48,
-            justifyContent: open ? 'initial' : 'center',
-            px: 2.5,
-          }}
-        >
-          <ListItemIcon
-            sx={{
-              minWidth: 0,
-              mr: open ? 2 : 'auto',
-              justifyContent: 'center',
-            }}
-          >
-            <ReviewsIcon />
-          </ListItemIcon>
-          <ListItemText 
-            primary="My Reviews" 
-            secondary="Manage your product reviews"
-            sx={{ opacity: open ? 1 : 0 }} 
-          />
-        </ListItem>
-        
-        <ListItem 
-          button 
-          onClick={() => navigate('/user/deals')}
-          sx={{ 
-            minHeight: 48,
-            justifyContent: open ? 'initial' : 'center',
-            px: 2.5,
-          }}
-        >
-          <ListItemIcon
-            sx={{
-              minWidth: 0,
-              mr: open ? 2 : 'auto',
-              justifyContent: 'center',
-            }}
-          >
-            <LocalOfferIcon />
-          </ListItemIcon>
-          <ListItemText 
-            primary="Special Offers" 
-            secondary="Personalized deals and promotions"
-            sx={{ opacity: open ? 1 : 0 }} 
-          />
-        </ListItem>
-        
-        <ListItem 
-          button 
-          onClick={() => navigate('/user/settings')}
-          sx={{ 
-            minHeight: 48,
-            justifyContent: open ? 'initial' : 'center',
-            px: 2.5,
-          }}
-        >
-          <ListItemIcon
-            sx={{
-              minWidth: 0,
-              mr: open ? 2 : 'auto',
-              justifyContent: 'center',
-            }}
-          >
-            <SettingsIcon />
-          </ListItemIcon>
-          <ListItemText 
-            primary="Account Settings" 
-            secondary="Manage preferences and security"
-            sx={{ opacity: open ? 1 : 0 }} 
-          />
-        </ListItem>
-        
-        <ListItem 
-          button 
-          onClick={() => navigate('/user/support')}
-          sx={{ 
-            minHeight: 48,
-            justifyContent: open ? 'initial' : 'center',
-            px: 2.5,
-          }}
-        >
-          <ListItemIcon
-            sx={{
-              minWidth: 0,
-              mr: open ? 2 : 'auto',
-              justifyContent: 'center',
-            }}
-          >
-            <HelpIcon />
-          </ListItemIcon>
-          <ListItemText 
-            primary="Help & Support" 
-            secondary="Get assistance with your account"
-            sx={{ opacity: open ? 1 : 0 }} 
-          />
-        </ListItem>
-      </List>
-    </Box>
-  );
-}
+        return Promise.reject(error);
+      }
+    );
+    
+    // Clean up interceptor on unmount
+    return () => axios.interceptors.response.eject(interceptor);
+  }, []);
+
+  // Check if user has a specific role
+  const hasRole = (requiredRole) => {
+    if (!user) return false;
+    
+    // Superuser has access to everything
+    if (user.is_superuser) return true;
+    
+    // Check for specific role
+    return user.role === requiredRole;
+  };
+
+  // Context value
+  const value = {
+    user,
+    loading,
+    error,
+    login,
+    logout,
+    refreshToken,
+    hasRole,
+    isAuthenticated: !!user
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+// Custom hook to use the auth context
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect } from 'react';
 import { Box, Button, CssBaseline, IconButton, Toolbar, Typography, Badge, Avatar, Menu, MenuItem } from "@mui/material";
 import MuiDrawer from "@mui/material/Drawer";
 import MuiAppBar from "@mui/material/AppBar";
@@ -8,13 +8,16 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import UserSidebar from "./Sidebar";
 import { useNavigate } from "react-router-dom";
-import "../../../assets/style.css"
+import useAuth from '../../../hooks/useAuth';// Import the auth context
+import "../../../assets/style.css";
+
 const drawerWidth = 240;
 
 export default function UserLayout({ children }) {
-  const [open, setOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [open, setOpen] = React.useState(false);
+  const [anchorEl, setAnchorEl] = React.useState(null);
   const navigate = useNavigate();
+  const { user, logout } = useAuth(); // Use the auth context
   
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -24,12 +27,24 @@ export default function UserLayout({ children }) {
     setAnchorEl(null);
   };
 
-  const Logout =()=>{
-    handleMenuClose()
-    localStorage.clear()
-  }
+  const handleLogout = () => {
+    handleMenuClose();
+    logout(); // Use the logout function from auth context
+  };
 
   const isMenuOpen = Boolean(anchorEl);
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+    }
+  }, [user, navigate]);
+
+  // If no user, don't render the layout
+  if (!user) {
+    return null;
+  }
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -66,7 +81,7 @@ export default function UserLayout({ children }) {
               onClick={handleProfileMenuOpen}
               color="inherit"
             >
-              <Avatar alt="User Name" src="/static/images/avatar/1.jpg" sx={{ width: 32, height: 32 }} />
+              <Avatar alt={user.username} src="/static/images/avatar/1.jpg" sx={{ width: 32, height: 32 }} />
             </IconButton>
           </Box>
         </Toolbar>
@@ -88,7 +103,7 @@ export default function UserLayout({ children }) {
       >
         <MenuItem onClick={() => { handleMenuClose(); navigate('/profile'); }}>Profile</MenuItem>
         <MenuItem onClick={() => { handleMenuClose(); navigate('/account-settings'); }}>Account Settings</MenuItem>
-        <MenuItem onClick={() => { Logout(); navigate('/login'); }}>Logout</MenuItem>
+        <MenuItem onClick={handleLogout}>Logout</MenuItem>
       </Menu>
 
       <MuiDrawer
@@ -104,7 +119,7 @@ export default function UserLayout({ children }) {
             {open ? <ChevronLeftIcon /> : <MenuIcon />}
           </IconButton>
         </Toolbar>
-        <UserSidebar open={open} />
+        <UserSidebar open={open} user={user} /> {/* Pass user to sidebar */}
       </MuiDrawer>
 
       <Box component="main" sx={{ flexGrow: 1, p: 3, mt: 8 }}>

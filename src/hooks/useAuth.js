@@ -12,7 +12,7 @@ export default function useAuth() {
       return;
     }
     axios.get('http://127.0.0.1:8000/api/auth/user/', {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: "Bearer" +token }
     })
     .then(res => setUser(res.data))
     .catch(() => setUser(null))
@@ -21,3 +21,5 @@ export default function useAuth() {
 
   return { user, loading };
 }
+
+
